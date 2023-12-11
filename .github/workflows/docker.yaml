@@ -1,0 +1,78 @@
+name: Publish Docker image
+on:
+  workflow_dispatch:
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          ref: master
+      - name: Initialization environment
+        run : |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          sudo timedatectl set-timezone "Asia/Shanghai"
+      - name: Check and download remote files
+        run: |
+          if [ -d "trilium-linux-x64-server" ]; then
+            rm -rf trilium-linux-x64-server
+          else          
+            wget https://github.com/Nriver/trilium-translation/releases/latest/download/trilium-cn-linux-x64-server.zip 
+          fi
+          unzip trilium-cn-linux-x64-server.zip 
+          rm -rf trilium-cn-linux-x64-server.zip 
+          cd trilium-linux-x64-server 
+          rm -rf node node_modules 
+      - name: Check for changes
+        run: |
+          if [ -n "$(git status -s | grep -v -w timestamp)" ];then
+            echo "ischanges=true" >> $GITHUB_ENV
+          else
+            echo "ischanges=false" >> $GITHUB_ENV
+          fi
+      - name: Commit and Push
+        if: env.ischanges == 'true'
+        run: |
+          git add .
+          git commit -m "update $(date +%Y-%m-%d" "%H:%M:%S)"
+          git push -f
+      
+      
+  docker:
+    runs-on: ubuntu-latest
+    if: ${{success()}}
+    needs: [download]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          ref: master
+      - name: Checkout version
+        run: |
+          version=$(cat version)
+          echo >> echo "version=$version" >> $GITHUB_ENV
+          ls -la
+          echo $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/trilium:latest
+            ${{ secrets.DOCKER_USERNAME }}/trilium:${{ env.version }}
