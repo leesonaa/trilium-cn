@@ -18,13 +18,21 @@ jobs:
         run: |
           if [ -d "trilium-linux-x64-server" ]; then
             echo "find"
-          else
             rm -rf trilium-linux-x64-server        
             wget https://github.com/Nriver/trilium-translation/releases/latest/download/trilium-cn-linux-x64-server.zip 
             unzip trilium-cn-linux-x64-server.zip 
             rm -rf trilium-cn-linux-x64-server.zip 
             cd trilium-linux-x64-server 
             rm -rf node node_modules 
+            echo "done"
+          else  
+            echo "nono"
+            wget https://github.com/Nriver/trilium-translation/releases/latest/download/trilium-cn-linux-x64-server.zip 
+            unzip trilium-cn-linux-x64-server.zip 
+            rm -rf trilium-cn-linux-x64-server.zip 
+            cd trilium-linux-x64-server 
+            rm -rf node node_modules
+            echo "done"
           fi
       - name: Check for changes
         run: |
