@@ -17,14 +17,15 @@ jobs:
       - name: Check and download remote files
         run: |
           if [ -d "trilium-linux-x64-server" ]; then
-            rm -rf trilium-linux-x64-server
-          else          
+            echo "find"
+          else
+            rm -rf trilium-linux-x64-server        
             wget https://github.com/Nriver/trilium-translation/releases/latest/download/trilium-cn-linux-x64-server.zip 
+            unzip trilium-cn-linux-x64-server.zip 
+            rm -rf trilium-cn-linux-x64-server.zip 
+            cd trilium-linux-x64-server 
+            rm -rf node node_modules 
           fi
-          unzip trilium-cn-linux-x64-server.zip 
-          rm -rf trilium-cn-linux-x64-server.zip 
-          cd trilium-linux-x64-server 
-          rm -rf node node_modules 
       - name: Check for changes
         run: |
           if [ -n "$(git status -s | grep -v -w timestamp)" ];then
