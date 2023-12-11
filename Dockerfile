@@ -1,6 +1,6 @@
 FROM node:18.18.2-alpine
 
-ADD trilium-linux-x64-server /app
+COPY Virgil.ttf trilium-linux-x64-server /app
 
 WORKDIR /app
 
@@ -17,7 +17,8 @@ RUN set -x \
         python3 \
     && npm install \
     && apk del .build-dependencies \
-    && npm prune --omit=dev 
+    && npm prune --omit=dev \
+    && cp ./Virgil.ttf ./node_modules/@excalidraw/excalidraw/dist/excalidraw-assets/
 
 EXPOSE 8080
 CMD node /app/src/www
