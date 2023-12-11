@@ -1,0 +1,12 @@
+<p>脚本启动器可以执行通过以下方式连接的脚本(代码笔记)<code>~script</code> relation.</p>
+
+<ol>
+    <li><code>script</code>- 和脚本笔记的关系, 会在激活启动器时运行</li>
+    <li><code>keyboardShortcut</code>- 可选, 按下键盘快捷键将激活启动器</li>
+</ol>
+
+<h4>示例脚本</h4>
+
+<pre>
+api.showMessage("Current note is " + api.getActiveContextNote().title);
+</pre>
